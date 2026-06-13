@@ -5,6 +5,10 @@ const jsdocPlugin = require('eslint-plugin-jsdoc');
 const reactPlugin = require('eslint-plugin-react');
 
 const jsdocRecommended = jsdocPlugin.configs['flat/recommended'] || jsdocPlugin.configs.recommended;
+const jsdocConfigs = Array.isArray(jsdocRecommended) ? jsdocRecommended : [jsdocRecommended];
+const jsdocRulesOff = Object.fromEntries(
+    jsdocConfigs.flatMap(config => Object.keys(config.rules ?? {})).map(rule => [rule, 'off']),
+);
 
 const [reactRecommended] = fixupConfigRules(reactPlugin.configs.recommended);
 const googleRules = {
@@ -113,7 +117,15 @@ module.exports = [
       ],
     },
   },
-  ...(Array.isArray(jsdocRecommended) ? jsdocRecommended : [jsdocRecommended]),
+  ...jsdocConfigs,
+  {
+    files: [
+      'demos/**',
+    ],
+    rules: {
+      ...jsdocRulesOff,
+    },
+  },
   {
     files: [
       'site/src/assets/js/**',
